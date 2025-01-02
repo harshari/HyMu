@@ -143,7 +143,7 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
     return positions
 2
 # Take ordering as input
-ordering = ["Cluster 1", "Cluster 2", "Cluster 3", "Cluster 4"]
+ordering = ["Cluster 2", "Cluster 3", "Cluster 1", "Cluster 4"]
 
 # Initialize positions
 cluster_positions = {}
