@@ -4,10 +4,10 @@ from scipy.spatial.distance import euclidean
 
 # Cluster configurations
 clusters = {
-    "Cluster 1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets
-    "Cluster 2": {"count": 12, "pd": 1, "area": 4},  # 2x2 chiplets
-    "Cluster 3": {"count": 18, "pd": 4, "area": 4},  # 2x2 chiplets
-    "Cluster 4": {"count": 24, "pd": 28, "area": 4},  # 2x2 chiplets
+    "Cluster_1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets
+    "Cluster_2": {"count": 12, "pd": 1, "area": 4},  # 2x2 chiplets
+    "Cluster_3": {"count": 18, "pd": 4, "area": 4},  # 2x2 chiplets
+    "Cluster_4": {"count": 24, "pd": 28, "area": 4},  # 2x2 chiplets
 }
 
 # Grid dimensions
@@ -56,10 +56,10 @@ def visualize_grid_with_legends_updated(grid, cluster_positions, grid_dims, clus
     plt.title(title)
 
     cluster_colors = {
-        "Cluster 4": "red",
-        "Cluster 1": "orange",
-        "Cluster 3": "blue",
-        "Cluster 2": "green",
+        "Cluster_4": "red",
+        "Cluster_1": "orange",
+        "Cluster_3": "blue",
+        "Cluster_2": "green",
     }
 
     for cluster_key, positions in cluster_positions.items():
@@ -93,6 +93,7 @@ def visualize_grid_with_legends_updated(grid, cluster_positions, grid_dims, clus
     plt.xlabel("X-axis (mm)")
     plt.ylabel("Y-axis (mm)")
     plt.show()
+    plt.savefig("floorplan.png")
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -119,7 +120,7 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
                 positions.append((0, y))
                 for dx in range(chiplet_size[0]):
                     for dy in range(chiplet_size[1]):
-                        grid[0 + dx, y + dy] = int(cluster_key.split()[-1]) * 1000
+                        grid[0 + dx, y + dy] = int(cluster_key.split('_')[-1]) * 1000
                 chiplets_remaining -= 1
 
         for x in range(chiplet_size[0], grid_dims[0], chiplet_size[0]):  # Right boundary
@@ -127,7 +128,7 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
                 positions.append((x, grid_dims[1] - chiplet_size[1]))
                 for dx in range(chiplet_size[0]):
                     for dy in range(chiplet_size[1]):
-                        grid[x + dx, grid_dims[1] - chiplet_size[1] + dy] = int(cluster_key.split()[-1]) * 1000
+                        grid[x + dx, grid_dims[1] - chiplet_size[1] + dy] = int(cluster_key.split('_')[-1]) * 1000
                 chiplets_remaining -= 1
 
     # Inside placement (towards center)
@@ -137,13 +138,13 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
                 positions.append((x, y))
                 for dx in range(chiplet_size[0]):
                     for dy in range(chiplet_size[1]):
-                        grid[x + dx, y + dy] = int(cluster_key.split()[-1]) * 1000
+                        grid[x + dx, y + dy] = int(cluster_key.split('_')[-1]) * 1000
                 chiplets_remaining -= 1
 
     return positions
 2
 # Take ordering as input
-ordering = ["Cluster 2", "Cluster 3", "Cluster 1", "Cluster 4"]
+ordering = ["Cluster_2", "Cluster_3", "Cluster_1", "Cluster_4"]
 
 # Initialize positions
 cluster_positions = {}
@@ -173,3 +174,88 @@ visualize_grid_with_legends_updated(
     clusters,
     title="Performance aware Cluster Placement"
 )
+
+
+import yaml
+
+def load_dict_yaml(yaml_file):
+    with open(yaml_file, 'r') as f:
+        dict = yaml.safe_load(f)
+    return dict
+
+layout_blocks = load_dict_yaml('layout_blocks.yml')
+
+def generate_new_power_dist(cluster, iter ,start_x, start_y, len_x, len_y, nodes_x, nodes_y, layout_blocks, power):
+    chiplet = {'start_chiplet_x': start_x, 'start_chiplet_y': start_y, 'length_chiplet_x': len_x, 'length_chiplet_y': len_y}
+    # layout_blocks = {'start_chiplet_x': start_x, 'start_chiplet_y': start_y, 'layout_blocks': layout_blocks}
+
+    if power>0:
+        layout_blocks = {'layout_blocks': {'chiplet': {'length_x': len_x, 'length_y': len_y, 'max_power': power, 'start_point_x': 0, 'start_point_y': 0}}}
+        chiplet.update(layout_blocks)
+        chiplet.update({'nodes_x': nodes_x, 'nodes_y': nodes_y})
+    else:
+        chiplet.update({'nodes_x': 1, 'nodes_y': 1})
+
+    chiplet_name = cluster+ '_chiplet_' + str(iter)
+
+    chiplet = {chiplet_name:  chiplet}
+
+    return chiplet
+
+chiplet_positions = {}
+
+for cluster in cluster_positions:
+    idx = 0
+    power = clusters[cluster]["pd"]
+    print(f"{cluster} positions: {cluster_positions[cluster]}")
+    if clusters[cluster]["area"] == 8:
+        len_x, len_y, nodes_x, nodes_y = 2, 4, 2, 4
+    else:
+        len_x, len_y, nodes_x, nodes_y = 2, 2, 1, 1
+    
+    for chiplet in cluster_positions[cluster]:
+        chiplet = generate_new_power_dist(cluster=cluster,
+                                          iter=idx, 
+                                            start_x=chiplet[0], 
+                                            start_y=chiplet[1], 
+                                            len_x=len_x, 
+                                            len_y=len_y, 
+                                            nodes_x=nodes_x,
+                                            nodes_y=nodes_y,
+                                            layout_blocks=layout_blocks,
+                                            power=power)
+        chiplet_positions.update(chiplet)
+        idx += 1
+
+power_dist_config = {'chiplet:': chiplet_positions}
+
+ubump_position = {}
+tim_position = {}
+for cluster in cluster_positions:
+    idx = 0
+    power = 0
+    if clusters[cluster]["area"] == 8:
+        len_x, len_y, nodes_x, nodes_y = 2, 4, 1, 1
+    else:
+        len_x, len_y, nodes_x, nodes_y = 2, 2, 1, 1
+    
+    for chiplet in cluster_positions[cluster]:
+        chiplet = generate_new_power_dist(cluster=cluster,
+                                          iter=idx, 
+                                            start_x=chiplet[0], 
+                                            start_y=chiplet[1], 
+                                            len_x=len_x, 
+                                            len_y=len_y, 
+                                            nodes_x=nodes_x,
+                                            nodes_y=nodes_y,
+                                            layout_blocks=layout_blocks,
+                                            power=power)
+        ubump_position.update(chiplet)
+        idx += 1
+
+tim_position = ubump_position
+
+power_dist_config = {'chiplet': chiplet_positions, 'ubump': ubump_position, 'tim': tim_position}
+
+with open('chiplet_positions.yml', 'w') as f:
+    yaml.dump(power_dist_config, f)
