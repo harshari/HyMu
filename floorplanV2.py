@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.spatial.distance import euclidean
+import pandas as pd
 
 # Cluster configurations
 clusters = {
@@ -12,6 +12,7 @@ clusters = {
 
 # Grid dimensions
 grid_dims = (20, 22)
+<<<<<<< Updated upstream
 grid = np.zeros((grid_dims[0] + 1, grid_dims[1] + 1), dtype=int)
 
 
@@ -94,6 +95,8 @@ def visualize_grid_with_legends_updated(grid, cluster_positions, grid_dims, clus
     plt.ylabel("Y-axis (mm)")
     plt.show()
     plt.savefig("floorplan.png")
+=======
+>>>>>>> Stashed changes
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -106,13 +109,14 @@ def is_valid_position(grid, x, y, chiplet_size):
                 return False
     return True
 
-# Function to place chiplets
-def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
+# Function to place chiplets in fixed positions for initial layout
+def place_chiplets_fixed(grid, cluster_key, clusters):
     chiplet_area = clusters[cluster_key]["area"]
     chiplet_size = (4, 2) if chiplet_area == 8 else (2, 2)
     positions = []
     chiplets_remaining = clusters[cluster_key]["count"]
 
+<<<<<<< Updated upstream
     # Boundary placement
     if boundary_only:
         for y in range(0, grid_dims[1], chiplet_size[1]):  # Bottom boundary
@@ -134,6 +138,11 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
     # Inside placement (towards center)
     for x in range(grid_dims[0]):
         for y in range(grid_dims[1]):
+=======
+    # Start placement from the top-left corner
+    for x in range(0, grid_dims[0], chiplet_size[0]):
+        for y in range(0, grid_dims[1], chiplet_size[1]):
+>>>>>>> Stashed changes
             if chiplets_remaining > 0 and is_valid_position(grid, x, y, chiplet_size):
                 positions.append((x, y))
                 for dx in range(chiplet_size[0]):
@@ -142,23 +151,118 @@ def place_chiplets(grid, cluster_key, clusters, boundary_only=False):
                 chiplets_remaining -= 1
 
     return positions
+<<<<<<< Updated upstream
 2
 # Take ordering as input
 ordering = ["Cluster_2", "Cluster_3", "Cluster_1", "Cluster_4"]
+=======
+>>>>>>> Stashed changes
 
-# Initialize positions
+# Function to generate floorplan data for chiplets
+def generate_floorplan_data(cluster_positions, clusters):
+    floorplan_data = []
+    for cluster_key, positions in cluster_positions.items():
+        chiplet_area = clusters[cluster_key]["area"]
+        chiplet_size = (4, 2) if chiplet_area == 8 else (2, 2)
+        for idx, (x, y) in enumerate(positions, start=1):
+            floorplan_data.append({
+                "Chiplet": f"{cluster_key}-{idx}".replace("Cluster ", "C"),
+                "Lower_Left_Corner": (x, y),
+                "Length": chiplet_size[0],
+                "Breadth": chiplet_size[1]
+            })
+    return floorplan_data
+
+# Function to adjust positions and sizes with spacing
+def adjust_chiplets_with_spacing(floorplan_data, spacing=0.25):
+    adjusted_floorplan = []
+    half_spacing = spacing / 2  # Distribute spacing equally on all sides
+
+    for chiplet in floorplan_data:
+        x, y = chiplet["Lower_Left_Corner"]
+        length = chiplet["Length"]
+        breadth = chiplet["Breadth"]
+        
+        # Adjust position and dimensions for spacing
+        adjusted_x = x + half_spacing * x
+        adjusted_y = y + half_spacing * y
+        adjusted_length = length - spacing
+        adjusted_breadth = breadth - spacing
+
+        adjusted_floorplan.append({
+            "Chiplet": chiplet["Chiplet"],
+            "Lower_Left_Corner": (adjusted_x, adjusted_y),
+            "Length": adjusted_length,
+            "Breadth": adjusted_breadth
+        })
+    return adjusted_floorplan
+
+# Visualization function with tick marks and equal axes scaling
+def visualize_chiplets_with_ticks_and_labels(floorplan_data, clusters, spacing=0.25, title="Chiplet Placement"):
+    plt.figure(figsize=(12, 8))
+    plt.title(title)
+    max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
+    max_y = max(chiplet["Lower_Left_Corner"][0] + chiplet["Length"] for chiplet in floorplan_data)
+    plt.xlim(0, max_x + spacing)
+    plt.ylim(0, max_y + spacing)
+
+    # Ensure equal scaling for axes
+    plt.gca().set_aspect('equal', adjustable='box')
+
+    # Cluster-specific colors
+    cluster_colors = {
+        "C4": "red",
+        "C1": "orange",
+        "C3": "blue",
+        "C2": "green",
+    }
+
+    for chiplet in floorplan_data:
+        x, y = chiplet["Lower_Left_Corner"]
+        length = chiplet["Length"]
+        breadth = chiplet["Breadth"]
+        cluster_key = chiplet["Chiplet"].split("-")[0]
+        color = cluster_colors[cluster_key]
+
+        plt.gca().add_patch(
+            plt.Rectangle(
+                (y, x), breadth, length, color=color, alpha=0.8, edgecolor="black", linewidth=1.5
+            )
+        )
+        plt.text(
+            y + breadth / 2,
+            x + length / 2,
+            chiplet["Chiplet"],
+            color="black",
+            fontsize=8,
+            ha="center",
+            va="center",
+        )
+
+    # Add tick marks at every unit
+    plt.xticks(ticks=np.arange(0, max_x + 2, 1))
+    plt.yticks(ticks=np.arange(0, max_y + 2, 1))
+    plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
+    plt.xlabel("X-axis (mm)")
+    plt.ylabel("Y-axis (mm)")
+    plt.show()
+
+# Initialize the grid and cluster positions
+grid = np.zeros((grid_dims[0] + 1, grid_dims[1] + 1), dtype=int)
 cluster_positions = {}
 
 # Place clusters based on ordering
-for idx, cluster in enumerate(ordering):
-    if idx == 0:  # First cluster on boundary
-        #cluster_positions[ordering[0]] = place_first_cluster_spiral(grid, ordering[0], clusters)
-        cluster_positions[cluster] = place_chiplets(grid, cluster, clusters, boundary_only=True)
-    else:  # Remaining clusters towards center
-        cluster_positions[cluster] = place_chiplets(grid, cluster, clusters, boundary_only=False)
+ordering = ["Cluster 1", "Cluster 4", "Cluster 3", "Cluster 2"]
+for cluster in ordering:
+    cluster_positions[cluster] = place_chiplets_fixed(grid, cluster, clusters)
 
+# Generate floorplan data
+floorplan_data = generate_floorplan_data(cluster_positions, clusters)
 
+# Adjust floorplan data with spacing
+adjusted_floorplan_with_spacing = adjust_chiplets_with_spacing(floorplan_data)
 
+<<<<<<< Updated upstream
 # Validate grid and calculate average hop count
 if has_empty_spaces(grid, clusters):
     print("Invalid design: grid contains empty points.")
@@ -259,3 +363,13 @@ power_dist_config = {'chiplet': chiplet_positions, 'ubump': ubump_position, 'tim
 
 with open('chiplet_positions.yml', 'w') as f:
     yaml.dump(power_dist_config, f)
+=======
+# Convert to DataFrame for output
+adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
+
+# Uncomment the following line to save the floorplan data to a CSV file
+# adjusted_floorplan_spacing_df.to_csv("chiplet-position_flp.csv", index=False)
+
+# Visualize chiplet placement with tick marks and labeled clusters
+visualize_chiplets_with_ticks_and_labels(adjusted_floorplan_with_spacing, clusters, spacing=0.25, title="Chiplet Placement with Tick Marks and Labels")
+>>>>>>> Stashed changes
