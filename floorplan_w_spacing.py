@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cityblock
 import pandas as pd
+from itertools import permutations 
 
 # Cluster configurations
 clusters = {
@@ -99,7 +100,7 @@ def calculate_average_hop_count(cluster_positions):
     return total_distance / total_pairs if total_pairs > 0 else None
 
 # Visualization function with tick marks and equal axes scaling
-def visualize_chiplets_with_ticks_and_labels(floorplan_data, clusters, spacing=0.25, title="Chiplet Placement with Tick Marks and Labels"):
+def visualize_chiplets_with_ticks_and_labels(i, floorplan_data, clusters, spacing=0.25, title="Chiplet Placement with Tick Marks and Labels"):
     plt.figure(figsize=(12, 8))
     plt.title(title)
     max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
@@ -146,32 +147,50 @@ def visualize_chiplets_with_ticks_and_labels(floorplan_data, clusters, spacing=0
     plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
     plt.xlabel("X-axis (mm)")
     plt.ylabel("Y-axis (mm)")
-    plt.show()
-
+    plt.savefig(f"{i}.png")
 # Initialize the grid and cluster positions
-grid = np.zeros((grid_dims[0] + 1, grid_dims[1] + 1), dtype=int)
+grid = np.zeros((grid_dims[0], grid_dims[1]), dtype=int)
 cluster_positions = {}
 
 # Place clusters based on ordering
-ordering = ["Cluster 1", "Cluster 3", "Cluster 4", "Cluster 2"]
-for cluster in ordering:
-    cluster_positions[cluster] = place_chiplets_fixed(grid, cluster, clusters)
+ordering = ["Cluster 4", "Cluster 3", "Cluster 2", "Cluster 1"]
+# ordering = ["Cluster 3", "Cluster 1", "Cluster 2", "Cluster 4"]
+#ordering = ["Cluster 1", "Cluster 3", "Cluster 2", "Cluster 4"]
 
-# Generate floorplan data
-floorplan_data = generate_floorplan_data(cluster_positions, clusters)
 
-# Adjust floorplan data with spacing
-adjusted_floorplan_with_spacing = adjust_chiplets_with_spacing(floorplan_data)
+permutations = list(permutations(ordering))
 
-# Calculate average hop count
-average_hop_count = calculate_average_hop_count(cluster_positions)
-print(f"Average Hop Count: {average_hop_count:.2f}")
+i = 0
+for iterate in permutations:
+    i += 1
+    grid = np.zeros((grid_dims[0], grid_dims[1]), dtype=int)
+    cluster_positions = {}
+    for cluster in iterate:
+        cluster_positions[cluster] = place_chiplets_fixed(grid, cluster, clusters)
+        
+    if np.all(grid):
+        # Generate floorplan data
+        floorplan_data = generate_floorplan_data(cluster_positions, clusters)
+        # Adjust floorplan data with spacing
+        adjusted_floorplan_with_spacing = adjust_chiplets_with_spacing(floorplan_data)
 
-# Convert to DataFrame for output
-adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
+        # Calculate average hop count
+        average_hop_count = calculate_average_hop_count(cluster_positions)
+        print(f"Average Hop Count: {average_hop_count:.2f}")
 
-# Uncomment the following line to save the floorplan data to a CSV file
-adjusted_floorplan_spacing_df.to_csv("chiplet-position_flp.csv", index=False)
+        # Convert to DataFrame for output
+        adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
-# Visualize chiplet placement with tick marks and labeled clusters
-visualize_chiplets_with_ticks_and_labels(adjusted_floorplan_with_spacing, clusters, spacing=0.25, title="Heterogenous Chiplet Placement")
+        # Uncomment the following line to save the floorplan data to a CSV file
+        adjusted_floorplan_spacing_df.to_csv(f"chiplet-position_flp{i}.csv", index=False)
+
+        # Visualize chiplet placement with tick marks and labeled clusters
+        visualize_chiplets_with_ticks_and_labels(i, adjusted_floorplan_with_spacing, clusters, spacing=0.25, title="Heterogenous Chiplet Placement")
+        print("Linking to MFIT here")
+    else:
+        print("Next permutation")
+    
+
+        
+
+    
