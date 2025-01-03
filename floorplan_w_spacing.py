@@ -3,13 +3,15 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import cityblock
 import pandas as pd
 from itertools import permutations 
+from generate_mfit_floorplan import generate_power_config_file
+import os
 
 # Cluster configurations
 clusters = {
     "Cluster 1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets
     "Cluster 2": {"count": 12, "pd": 1, "area": 4},  # 2x2 chiplets
     "Cluster 3": {"count": 18, "pd": 4, "area": 4},  # 2x2 chiplets
-    "Cluster 4": {"count": 24, "pd": 28, "area": 4},  # 2x2 chiplets
+    "Cluster 4": {"count": 24, "pd": 8, "area": 4},  # 2x2 chiplets
 }
 
 # Grid dimensions
@@ -147,7 +149,8 @@ def visualize_chiplets_with_ticks_and_labels(i, floorplan_data, clusters, spacin
     plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
     plt.xlabel("X-axis (mm)")
     plt.ylabel("Y-axis (mm)")
-    plt.savefig(f"{i}.png")
+    plt.savefig(f"exp_{i}/chiplet-placement.png")
+
 # Initialize the grid and cluster positions
 grid = np.zeros((grid_dims[0], grid_dims[1]), dtype=int)
 cluster_positions = {}
@@ -169,11 +172,17 @@ for iterate in permutations:
         cluster_positions[cluster] = place_chiplets_fixed(grid, cluster, clusters)
         
     if np.all(grid):
+        if os.path.exists(f"exp_{i}"):
+            os.system(f"rm -rf exp_{i}")
+        
+        os.system(f"mkdir exp_{i}")
+
         # Generate floorplan data
         floorplan_data = generate_floorplan_data(cluster_positions, clusters)
         # Adjust floorplan data with spacing
         adjusted_floorplan_with_spacing = adjust_chiplets_with_spacing(floorplan_data)
-
+        
+        generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
         # Calculate average hop count
         average_hop_count = calculate_average_hop_count(cluster_positions)
         print(f"Average Hop Count: {average_hop_count:.2f}")
@@ -182,7 +191,7 @@ for iterate in permutations:
         adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
         # Uncomment the following line to save the floorplan data to a CSV file
-        adjusted_floorplan_spacing_df.to_csv(f"chiplet-position_flp{i}.csv", index=False)
+        adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
 
         # Visualize chiplet placement with tick marks and labeled clusters
         visualize_chiplets_with_ticks_and_labels(i, adjusted_floorplan_with_spacing, clusters, spacing=0.25, title="Heterogenous Chiplet Placement")
