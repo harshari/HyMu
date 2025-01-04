@@ -28,6 +28,24 @@ def is_valid_position(grid, x, y, chiplet_size):
                 return False
     return True
 
+def find_max_distance_position(grid, chiplet_size, current_positions=None):
+    rows, cols = grid.shape
+    center_x, center_y = rows // 2, cols // 2
+    max_distance = -1
+    best_pos = None
+
+    for x in range(rows):
+        for y in range(cols):
+            if is_valid_position(grid, x, y, chiplet_size):
+                dist = ((x - center_x)**2 + (y - center_y)**2)**0.5
+                if dist > max_distance:
+                    max_distance = dist
+                    best_pos = (x, y)
+
+    if best_pos is None:
+        print("No valid position found. Check chiplet size and grid dimensions.")
+    return best_pos
+
 # Function to place chiplets in fixed positions for initial layout
 def place_chiplets_fixed(grid, cluster_key, clusters):
     chiplet_area = clusters[cluster_key]["area"]
@@ -35,15 +53,22 @@ def place_chiplets_fixed(grid, cluster_key, clusters):
     positions = []
     chiplets_remaining = clusters[cluster_key]["count"]
 
-    # Start placement from the top-left corner
-    for x in range(0, grid_dims[0], chiplet_size[0]):
-        for y in range(0, grid_dims[1], chiplet_size[1]):
-            if chiplets_remaining > 0 and is_valid_position(grid, x, y, chiplet_size):
-                positions.append((x, y))
-                for dx in range(chiplet_size[0]):
-                    for dy in range(chiplet_size[1]):
-                        grid[x + dx, y + dy] = int(cluster_key.split()[-1]) * 1000
-                chiplets_remaining -= 1
+    while chiplets_remaining > 0:
+        next_pos = find_max_distance_position(grid, chiplet_size, positions)
+        
+        if next_pos is None:
+            print(f"Unable to place all chiplets for {cluster_key}. Remaining: {chiplets_remaining}")
+            return positions  # Return the positions already placed
+            
+        x, y = next_pos
+        positions.append((x, y))
+
+        for dx in range(chiplet_size[0]):
+            for dy in range(chiplet_size[1]):
+                grid[x + dx, y + dy] = int(cluster_key.split()[-1]) * 1000
+                
+        chiplets_remaining -= 1
+
     return positions
 
 # Function to generate floorplan data for chiplets
@@ -92,6 +117,7 @@ def adjust_chiplets_with_spacing(floorplan_data, spacing=0.25):
 def calculate_average_hop_count(cluster_positions):
     total_distance = 0
     total_pairs = 0
+
     for cluster_a, positions_a in cluster_positions.items():
         for cluster_b, positions_b in cluster_positions.items():
             if cluster_a != cluster_b:  # Calculate only between different clusters
@@ -228,6 +254,7 @@ for iterate in permutations:
             os.system(f"rm -rf exp_{i}")
         
         os.system(f"mkdir exp_{i}")
+
         print("Linking to MFIT here")
 
         # Generate floorplan data
@@ -248,8 +275,7 @@ for iterate in permutations:
         print("Core Placement Ordering Shape:", core_placement_ordering.shape)
         print("Link Placement Ordering Shape:", link_placement_ordering.shape)
                         
-
-        # generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
+        generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
         # Calculate average hop count
         average_hop_count = calculate_average_hop_count(cluster_positions)
         print(f"Average Hop Count: {average_hop_count:.2f}")
@@ -258,13 +284,8 @@ for iterate in permutations:
         adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
         # Uncomment the following line to save the floorplan data to a CSV file
-        # adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
+        adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
 
         # Visualize chiplet placement with tick marks and labeled clusters
     else:
         print("Next permutation")
-    
-
-        
-
-    
