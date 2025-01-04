@@ -8,7 +8,7 @@ import os
 
 # Cluster configurations
 clusters = {
-    "Cluster 1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets
+    "Cluster 1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets PD increase case of 
     "Cluster 2": {"count": 12, "pd": 1, "area": 4},  # 2x2 chiplets
     "Cluster 3": {"count": 18, "pd": 4, "area": 4},  # 2x2 chiplets
     "Cluster 4": {"count": 24, "pd": 8, "area": 4},  # 2x2 chiplets
