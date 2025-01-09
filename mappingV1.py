@@ -1,6 +1,5 @@
-import numpy as np
+import os
 import pandas as pd
-
 network_data = {
     "ResNet18": {
         "Storage": [9.19, 36.0, 36.0, 36.0, 36.0, 72.0, 144.0, 8.0, 144.0, 144.0, 288.0, 576.0, 32.0, 576.0, 576.0, 1152.0, 2304.0, 128.0],
@@ -72,68 +71,162 @@ network_data = {
 }
 
 # Cluster Configurations
-clusters = {
+cluster_config = {
     "Cluster 1": {"count": 28, "pd": 8, "area": 8, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},
     "Cluster 2": {"count": 12, "pd": 1, "area": 4, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},
     "Cluster 3": {"count": 18, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},
     "Cluster 4": {"count": 24, "pd": 8, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},
 }
 
-def compute_and_communicate(order, clusters, network_data, avg_hop_count=1.2, interconnect_bandwidth=1e9):
+
+def parse_temperature_files(base_path, experiment_prefix="exp_", temperature_file="output/temperature_chiplet_50.0.csv"):
     """
-    Compute total time (compute + communicate) for a sequence of neural networks.
+    Parses temperature files from available experiment directories.
+
     Args:
-        order (list): List of network names in order (e.g., ["resnet34", "resnet50"]).
-        clusters (dict): Cluster configuration dictionary.
-        network_data (dict): Dictionary containing details of each network.
-        avg_hop_count (float): Average hop count for communication.
-        interconnect_bandwidth (float): Interconnect bandwidth (bytes/s).
+        base_path (str): Path to the base directory containing experiments.
+        experiment_prefix (str): Prefix of experiment directories (e.g., "exp_").
+        temperature_file (str): Relative path to the temperature file inside each experiment directory.
+
     Returns:
-        results (dict): Dictionary of results with compute time, communication time, and total time for each network.
+        dict: A dictionary with experiment names as keys and temperature DataFrames as values.
+    """
+    temperature_data = {}
+    for experiment in sorted(os.listdir(base_path)):
+        if experiment.startswith(experiment_prefix):
+            experiment_path = os.path.join(base_path, experiment, temperature_file)
+            if os.path.exists(experiment_path):
+                try:
+                    df = pd.read_csv(
+                        experiment_path,
+                        header=None,
+                        names=["Chiplet", "Start_Temperature", "Peak_Temperature"],
+                    )
+                    # Extract Cluster and Chiplet numbers
+                    df[['Cluster', 'Chiplet']] = df['Chiplet'].str.extract(
+                        r'(C\d+)_chiplet_(\d+)', expand=True
+                    )
+
+                    # Convert Cluster values to uppercase (if needed)
+                    df['Cluster'] = df['Cluster'].str.upper()
+
+                    # Drop rows where extraction failed
+                    df = df.dropna(subset=['Cluster', 'Chiplet'])
+
+                    # Ensure Chiplet is treated as an integer
+                    df['Chiplet'] = df['Chiplet'].astype(int)
+
+                    # Sort by Cluster and Peak_Temperature
+                    temperature_data[experiment] = df.sort_values(
+                        by=['Cluster', 'Peak_Temperature']
+                    )
+                except Exception as e:
+                    print(f"Error reading {experiment_path}: {e}")
+    return temperature_data
+
+
+def map_layers(network_data, cluster_config, temp_data, order, avg_hop_count=1.2, interconnect_bandwidth=1e9):
+    """
+    Maps neural network layers to chiplets based on temperature and memory availability.
+
+    Args:
+        network_data (dict): Information about neural networks.
+        cluster_config (dict): Configuration details for clusters.
+        temp_data (dict): Temperature data for experiments.
+        order (list): Execution order of networks.
+        avg_hop_count (float): Average hop count for inter-chiplet communication.
+        interconnect_bandwidth (float): Bandwidth of the interconnect.
+
+    Returns:
+        dict: Results of mapping for each experiment.
     """
     results = {}
-    
-    for network_name in order:
-        network = network_data[network_name]
-        current_cluster = None
-        total_compute_time = 0
-        total_communication_time = 0
 
-        for layer_idx, compute in enumerate(network["Compute"]):
-            activations = network["Activations"][layer_idx]
-            storage = network["Storage"][layer_idx]
+    for experiment, temp_df in temp_data.items():
+        exp_results = {}
 
-            # Find a suitable cluster for the layer
-            for cluster_name, cluster in clusters.items():
-                if storage <= cluster["memory"] * cluster["count"]:  # Ensure memory fits
-                    compute_time = compute / cluster["tops"]
+        # Validate that all clusters in the temperature data exist in cluster_config
+        invalid_clusters = [cluster for cluster in temp_df['Cluster'].unique() if cluster not in cluster_config]
+        if invalid_clusters:
+            raise ValueError(f"Invalid clusters found in {experiment}: {invalid_clusters}. Check cluster_config.")
 
-                    # Communication time if switching clusters
-                    if current_cluster and current_cluster != cluster_name:
-                        comm_cost = activations * avg_hop_count
-                        comm_time = comm_cost / interconnect_bandwidth
-                        total_communication_time += comm_time
-                    
-                    # Update current cluster and total compute time
-                    current_cluster = cluster_name
-                    total_compute_time += compute_time
-                    break
-            else:
-                raise ValueError(f"Layer {layer_idx} in {network_name} cannot be mapped to any cluster!")
+        # Initialize chiplet availability for this experiment
+        chiplet_availability = temp_df.groupby('Cluster').apply(
+            lambda x: {chiplet: cluster_config[x['Cluster'].iloc[0]]['memory'] for chiplet in x['Chiplet']}
+        ).to_dict()
 
-        # Store results for this network
-        results[network_name] = {
-            "Compute Time (s)": total_compute_time,
-            "Communication Time (s)": total_communication_time,
-            "Total Time (s)": total_compute_time + total_communication_time,
-        }
+        for network_name in order:
+            network = network_data[network_name]
+            layers = len(network["Compute"])
+
+            total_compute_time = 0
+            total_communication_time = 0
+            current_chiplet = None
+            current_cluster = None
+
+            for layer_idx in range(layers):
+                sensitivity = network["Sensitivity"][layer_idx]
+                storage = network["Storage"][layer_idx]
+                activations = network["Activations"][layer_idx]
+                compute = network["Compute"][layer_idx]
+
+                # Update available memory in the DataFrame
+                temp_df['Available_Memory'] = temp_df.apply(
+                    lambda row: chiplet_availability[row['Cluster']].get(row['Chiplet'], 0), axis=1
+                )
+
+                # Sort chiplets with sufficient memory by temperature
+                temp_data_sorted = temp_df[temp_df['Available_Memory'] >= storage].sort_values(by=['Peak_Temperature'])
+
+                if temp_data_sorted.empty:
+                    raise ValueError(f"Layer {layer_idx} of {network_name} cannot fit in any chiplet in {experiment}.")
+
+                # Select the coolest chiplet with enough memory
+                chiplet = temp_data_sorted.iloc[0]
+                chiplet_id = f"{chiplet['Cluster']}_chiplet_{chiplet['Chiplet']}"
+
+                # Compute time for this layer
+                cluster = cluster_config[chiplet['Cluster']]
+                compute_time = compute / cluster["tops"]
+                total_compute_time += compute_time
+
+                # Compute communication time if switching chiplets or clusters
+                if current_chiplet and chiplet_id != current_chiplet:
+                    comm_cost = activations * avg_hop_count
+                    comm_time = comm_cost / interconnect_bandwidth
+                    total_communication_time += comm_time
+
+                # Update current chiplet and cluster
+                current_chiplet = chiplet_id
+                current_cluster = chiplet['Cluster']
+
+                # Reduce the available memory of the selected chiplet
+                chiplet_availability[chiplet['Cluster']][chiplet['Chiplet']] -= storage
+
+            # Store results for this network in the current experiment
+            exp_results[network_name] = {
+                "Compute Time (s)": total_compute_time,
+                "Communication Time (s)": total_communication_time,
+                "Total Time (s)": total_compute_time + total_communication_time,
+            }
+
+        results[experiment] = exp_results
 
     return results
 
-# Execution
-order = ["VGG19", "ResNet50"]
-results = compute_and_communicate(order, clusters, network_data)
+
+# Example Input
+base_path = "/Users/harsh/Documents/Github/HyMu-Paper"
+
+order = ["ResNet34", "ResNet50"]
+
+# Parse temperature files
+temp_data = parse_temperature_files(base_path)
+
+# Execute mapping for all available experiments
+results = map_layers(network_data, cluster_config, temp_data, order)
 
 # Display Results
-results_df = pd.DataFrame(results).T
-print(results_df)
+for experiment, result in results.items():
+    print(f"\nResults for {experiment}:")
+    print(pd.DataFrame(result).T)

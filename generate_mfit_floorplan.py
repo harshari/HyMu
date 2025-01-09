@@ -3,6 +3,22 @@ import numpy as np
 import csv
 import subprocess
 
+router_power_scaling = {
+    2: 1.4,
+    3: 2.2,
+    4: 3.4,
+    5: 3.8,
+    6: 4.2 
+}
+
+router_power_scaling_floret = {
+    2: 1.1,
+    3: 2,
+    4: 2.5,
+    5: 2.8,
+    6: 3 
+}
+
 def run_mfit(iter):
     script = 'MFIT/thermal_RC.py'
 
@@ -40,6 +56,8 @@ def generate_power_config_file(floorplan_data, clusters, iter):
 
 
     for chiplet_element in floorplan_data:
+
+        neighbors = chiplet_element["neighbor_count"]
         cluster_key = chiplet_element["Chiplet"].split("-")[0]
         cluster_idx = int(chiplet_element["Chiplet"].split("-")[1])
         chiplet_x = chiplet_element["Lower_Left_Corner"][1]
@@ -60,8 +78,12 @@ def generate_power_config_file(floorplan_data, clusters, iter):
             nodes_x, nodes_y = 2, 2
 
         
-        power = clusters[mapping[cluster_key]]['pd']
-
+        power = clusters[mapping[cluster_key]]['pd'] + router_power_scaling[neighbors] # for Mesh
+        
+        # For Kite - no change; 
+        # For HexaMesh: add+1.4W
+        # For Floret - reduce by 1W
+        
         chiplet = generate_new_power_dist(cluster=cluster_key,
                                             idx=cluster_idx,
                                           start_x=chiplet_x,

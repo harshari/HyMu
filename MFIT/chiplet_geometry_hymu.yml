@@ -8,7 +8,7 @@ common:
   chiplet_spacing: 1.5
   n_chiplet_x: 2
   n_chiplet_y: 2
-  bc_top_htc : 10000
+  bc_top_htc : 14000
   bc_bottom_htc : 25
 
 layers:

@@ -58,14 +58,21 @@ network_data = {
 
 # Cluster configurations
 clusters = {
-    "Cluster 1": {"count": 28, "pd": 8, "area": 8},  # 2x4 or 4x2 chiplets
-    "Cluster 2": {"count": 12, "pd": 1, "area": 4},  # 2x2 chiplets
-    "Cluster 3": {"count": 18, "pd": 4, "area": 4},  # 2x2 chiplets
-    "Cluster 4": {"count": 24, "pd": 8, "area": 4},  # 2x2 chiplets
+    ### Original 
+    # "Cluster 1": {"count": 28, "pd": 8, "area": 8, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
+    # "Cluster 2": {"count": 12, "pd": 1, "area": 4, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
+    # "Cluster 3": {"count": 18, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
+    # "Cluster 4": {"count": 24, "pd": 8, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
+    "Cluster 1": {"count": 64, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
+    "Cluster 2": {"count": 0, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
+    "Cluster 3": {"count": 0, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
+    "Cluster 4": {"count": 0, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
+    # "Cluster 4": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # 2x2 chiplets
+
 }
 
 # Grid dimensions
-grid_dims = (20, 22)
+grid_dims = (16, 16)
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -137,7 +144,7 @@ def generate_floorplan_data(cluster_positions, clusters):
     return floorplan_data
 
 # Function to adjust positions and sizes with spacing
-def adjust_chiplets_with_spacing(floorplan_data, spacing=0.25):
+def adjust_chiplets_with_spacing(floorplan_data, spacing=1):
     adjusted_floorplan = []
     half_spacing = spacing / 2  # Distribute spacing equally on all sides
 
@@ -160,9 +167,38 @@ def adjust_chiplets_with_spacing(floorplan_data, spacing=0.25):
             "Lower_Left_Corner": (adjusted_x, adjusted_y),
             "Length": adjusted_length,
             "Breadth": adjusted_breadth,
-            "Center": (centre_x, centre_y)
+            "Center": (centre_x, centre_y),
+            "neighbor_count": chiplet["num_neighbors"]
         })
     return adjusted_floorplan
+
+import pandas as pd
+
+def calculate_neighbors(floorplan_data):
+    """
+    Appends the number of neighbors for each chiplet to the floorplan data.
+    Returns:
+        pd.DataFrame: Updated DataFrame with an additional column 'num_neighbors'.
+    """
+    def is_neighbor(chip1, chip2):
+        # Check if chip1 and chip2 are adjacent
+        adjacent_x = (chip1['Lower_Left_Corner'][0] + chip1['Length'] == chip2['Lower_Left_Corner'][0]) or (chip2['Lower_Left_Corner'][0] + chip2['Length'] == chip1['Lower_Left_Corner'][0])
+        overlapping_y = not (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] <= chip2['Lower_Left_Corner'][1] or chip2['Lower_Left_Corner'][1] + chip2['Breadth'] <= chip1['Lower_Left_Corner'][1])
+        
+        adjacent_y = (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] == chip2['Lower_Left_Corner'][1]) or (chip2['Lower_Left_Corner'][1] + chip2['Breadth'] == chip1['Lower_Left_Corner'][1])
+        overlapping_x = not (chip1['Lower_Left_Corner'][0] + chip1['Length'] <= chip2['Lower_Left_Corner'][0] or chip2['Lower_Left_Corner'][0] + chip2['Length'] <= chip1['Lower_Left_Corner'][0])
+        
+        return (adjacent_x and overlapping_y) or (adjacent_y and overlapping_x)
+    
+    for i, chip1 in enumerate(floorplan_data):
+        count = 0
+        for j, chip2 in enumerate(floorplan_data):
+            if i != j and is_neighbor(chip1, chip2):
+                count += 1
+        floorplan_data[i]['num_neighbors'] = count
+        
+    return floorplan_data
+
 
 # Function to calculate average hop count using Manhattan distance
 def calculate_average_hop_count(cluster_positions):
@@ -211,7 +247,7 @@ def generate_core_ordering_with_grid(adjusted_floorplan_with_spacing, clusters):
     """
     # Extract centers and chiplet names
     chiplet_positions = [
-        (chiplet["Chiplet"], chiplet["Center"][0], chiplet["Center"][1])  # (Name, Y, X)
+        (chiplet["Chiplet"], chiplet["Center"][0], chiplet["Center"][1])  # (Name, X, Y)
         for chiplet in adjusted_floorplan_with_spacing
     ]
 
@@ -261,7 +297,7 @@ def generate_core_ordering_with_grid(adjusted_floorplan_with_spacing, clusters):
 
     return core_ordering, grid
 
-def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=0.25, title="Chiplet Centers Visualization"):
+def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=1, title="Chiplet Centers Visualization"):
     plt.figure(figsize=(12, 8))
     plt.title(title)
     
@@ -304,7 +340,7 @@ def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=0.25, 
 
 
 # Visualization function with tick marks and equal axes scaling
-def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=0.25, title="Chiplet Placement with Tick Marks and Labels"):
+def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=1, title="Chiplet Placement with Tick Marks and Labels"):
     plt.figure(figsize=(12, 8))
     plt.title(title)
     max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
@@ -383,44 +419,44 @@ for iterate in permutations:
 
         # Generate floorplan data
         floorplan_data = generate_floorplan_data(cluster_positions, clusters)
+        updated_floorplan = calculate_neighbors(floorplan_data)
         # Adjust floorplan data with spacing
         adjusted_floorplan_with_spacing = adjust_chiplets_with_spacing(floorplan_data)
 
-        # Generate core ordering and grid
+        # # Generate core ordering and grid
         core_ordering, core_grid = generate_core_ordering_with_grid(adjusted_floorplan_with_spacing, clusters)
 
-        # Save 1D core ordering to CSV
+        # # Save 1D core ordering to CSV
         core_ordering_df = pd.DataFrame({"Core Ordering": core_ordering})
         core_ordering_df.to_csv(f"exp_{i}/core_ordering.csv", index=False)
 
-        # Save 2D grid to CSV
+        # # Save 2D grid to CSV
         core_grid_df = pd.DataFrame(core_grid)
         core_grid_df.to_csv(f"exp_{i}/core_grid.csv", index=False)
 
 
-        # Optionally save to a CSV file
-        # router_array_df = pd.DataFrame(router_array)
-        # router_array_df.to_csv(f"exp_{i}/router_array.csv", index=False)
+        # # Optionally save to a CSV file
+        # # router_array_df = pd.DataFrame(router_array)
+        # # router_array_df.to_csv(f"exp_{i}/router_array.csv", index=False)
         
-        ### Create NoI here. From the center of each chiplet
-        ### First for the given floorplan, create grid visualization
-        ### then initialize 2d matrix of links and 1d matrix for core ordering
-        # Visualize chiplet floorplan
+        # ### Create NoI here. From the center of each chiplet
+        # ### First for the given floorplan, create grid visualization
+        # ### then initialize 2d matrix of links and 1d matrix for core ordering
+        # # Visualize chiplet floorplan
 
-        visualize_chiplet_floorplan(i, adjusted_floorplan_with_spacing, clusters, spacing=0.25, title="Heterogenous Chiplet Placement")
+        visualize_chiplet_floorplan(i, adjusted_floorplan_with_spacing, clusters, spacing=1, title="Heterogenous Chiplet Placement")
         visualize_chiplet_centers(i, adjusted_floorplan_with_spacing=adjusted_floorplan_with_spacing)
-        
+        # average_hop_count = calculate_average_hop_count(cluster_positions)
+        # print(f"Average Hop Count: {average_hop_count:.2f}")
 
-        ## Send to MFIT
+        # ## Send to MFIT
         generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
-        # Calculate average hop count
-        average_hop_count = calculate_average_hop_count(cluster_positions)
-        print(f"Average Hop Count: {average_hop_count:.2f}")
-
-        # Convert to DataFrame for output
+        # # Calculate average hop count
+        
+        # # Convert to DataFrame for output
         adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
-        # Uncomment the following line to save the floorplan data to a CSV file
+        # # Uncomment the following line to save the floorplan data to a CSV file
         adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
 
     else:
