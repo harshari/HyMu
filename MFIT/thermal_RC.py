@@ -57,5 +57,6 @@ if __name__ == '__main__':
 
     start = time.time()
 
-    package.run_simulation_c_lsoda()
-    print('Time taken for simulation: ', time.time()-start)
+    T_peak = package.run_simulation_c_lsoda()
+    #print(f'Time taken for simulation = {(time.time()-start):.2f} seconds')
+    print(f"{T_peak:.2f}")

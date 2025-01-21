@@ -559,8 +559,13 @@ class Layer_chiplet:
     def plot_heatmap(self, temperature_all_layer, utils):
         fig, ax = plt.subplots()
 
+        # Set constant normalization range for the color scale
         norm = plt.Normalize(temperature_all_layer.min()-1, temperature_all_layer.max()+1)
-        cmap = plt.cm.hot_r
+
+        # norm = plt.Normalize(50, 95)
+        # cmap = plt.cm.hot_r
+        cmap = plt.cm.turbo  # Blue → Green → Yellow → Red
+
 
         if self.is_layer_under_chiplet() and not self.args.is_homogeneous:
             for i in range(self.total_nodes):
@@ -581,23 +586,76 @@ class Layer_chiplet:
                                         facecolor=colour) 
                     ax.add_patch(rect)
 
-        ax.set_xlim(-0.5, utils.package_x_len + 0.5 +1)
-        ax.set_ylim(-0.5, utils.package_y_len + 0.5 +1)
+        ax.set_xlim(-0.5, utils.package_x_len + 0.5 + 1)
+        ax.set_ylim(-0.5, utils.package_y_len + 0.5 + 1)
 
+        # Set ScalarMappable for colorbar with the constant normalization range
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-        sm.set_array(temperature_all_layer)
-        plt.colorbar(sm, ax=ax).set_label('Temperature (C)')
+        sm.set_array([])  # An empty array is enough for setting the colorbar
+        cbar = plt.colorbar(sm, ax=ax)
+        cbar.set_label('Temperature (C)', fontsize=14)
 
+        # Set font size for axes labels, title, and ticks
         plt.gca().set_aspect('equal', adjustable='box')
-        plt.title(self.layer_name + ' Heatmap')
-        plt.xlabel('X dimension (mm)')
-        plt.ylabel('Y dimension (mm)')
+        #plt.title(self.layer_name + ' Heatmap', fontsize=14)
+        plt.xlabel('X dimension (mm)', fontsize=14)
+        plt.ylabel('Y dimension (mm)', fontsize=14)
+
+        # Adjust font size for tick labels
+        ax.tick_params(axis='both', labelsize=14)
 
         if not os.path.exists(self.args.output_dir + '/heatmaps'):
             os.makedirs(self.args.output_dir + '/heatmaps')
         
         plt.savefig(self.args.output_dir + '/heatmaps/' + self.layer_name + '_heatmap.png', dpi=300, bbox_inches='tight')
 
-        # close the plot
+        # Close the plot
         plt.close(fig)
+
+
+    
+    # def plot_heatmap(self, temperature_all_layer, utils):
+    #     fig, ax = plt.subplots()
+
+    #     norm = plt.Normalize(temperature_all_layer.min()-1, temperature_all_layer.max()+1)
+    #     cmap = plt.cm.hot_r
+
+    #     if self.is_layer_under_chiplet() and not self.args.is_homogeneous:
+    #         for i in range(self.total_nodes):
+    #             colour = cmap(norm(temperature_all_layer[i]))
+    #             rect = Rectangle((self.nodes[i].x , self.nodes[i].y), 
+    #                                 self.nodes[i].x_length, self.nodes[i].y_length, 
+    #                                 linewidth=1, edgecolor='black',
+    #                                 facecolor=colour)
+    #             ax.add_patch(rect)
+        
+    #     else:
+    #         for i in range(self.total_x_nodes):
+    #             for j in range(self.total_y_nodes):
+    #                 colour = cmap(norm(temperature_all_layer[i*self.total_y_nodes + j]))
+    #                 rect = Rectangle((self.nodes[i][j].x , self.nodes[i][j].y), 
+    #                                     self.nodes[i][j].x_length, self.nodes[i][j].y_length,
+    #                                     linewidth=1, edgecolor='black',
+    #                                     facecolor=colour) 
+    #                 ax.add_patch(rect)
+
+    #     ax.set_xlim(-0.5, utils.package_x_len + 0.5 +1)
+    #     ax.set_ylim(-0.5, utils.package_y_len + 0.5 +1)
+
+    #     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    #     sm.set_array(temperature_all_layer)
+    #     plt.colorbar(sm, ax=ax).set_label('Temperature (C)')
+
+    #     plt.gca().set_aspect('equal', adjustable='box')
+    #     plt.title(self.layer_name + ' Heatmap')
+    #     plt.xlabel('X dimension (mm)')
+    #     plt.ylabel('Y dimension (mm)')
+
+    #     if not os.path.exists(self.args.output_dir + '/heatmaps'):
+    #         os.makedirs(self.args.output_dir + '/heatmaps')
+        
+    #     plt.savefig(self.args.output_dir + '/heatmaps/' + self.layer_name + '_heatmap.png', dpi=300, bbox_inches='tight')
+
+    #     # close the plot
+    #     plt.close(fig)
 

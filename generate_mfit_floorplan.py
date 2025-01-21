@@ -2,6 +2,7 @@ import yaml
 import numpy as np
 import csv
 import subprocess
+import re
 
 router_power_scaling = {
     2: 1.4,
@@ -19,12 +20,60 @@ router_power_scaling_floret = {
     6: 3 
 }
 
-def run_mfit(iter):
+def run_mfit(iter, timeout=60):
     script = 'MFIT/thermal_RC.py'
 
-    args = ['--power_config_file', f'exp_{iter}/power_dist_config.yaml', '--power_seq_file', f'exp_{iter}/power_seq.csv', '--output_dir' , f'./exp_{iter}/']
+    args = [
+        '--power_config_file', f'exp_{iter}/power_dist_config.yaml',
+        '--power_seq_file', f'exp_{iter}/power_seq.csv',
+        '--output_dir', f'./exp_{iter}/'
+    ]
 
-    subprocess.run(['python3', script] + args )
+    # Start the subprocess with a timeout
+    process = subprocess.Popen(
+        ['python3', script] + args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    try:
+        # Wait for the process to complete and get output with a timeout
+        stdout, stderr = process.communicate(timeout=timeout)
+        
+        # If there's an error in execution, print stderr and raise an error
+        if process.returncode != 0:
+            print("STDERR:", stderr)
+            raise RuntimeError(f"thermal_RC.py failed with error: {stderr}")
+
+        # Strip any surrounding whitespace from the output
+        T_peak_str = stdout.strip()
+        
+        # Use regex to extract the first floating-point number from the output
+        match = re.search(r"\d+\.\d+", T_peak_str)
+        
+        if match:
+            T_peak = float(match.group())  # Convert the matched number to a float
+            return T_peak
+        else:
+            raise ValueError(f"Invalid T_peak value received: {T_peak_str}")
+        
+    except subprocess.TimeoutExpired:
+        # Handle timeout error (if process takes too long)
+        process.kill()  # Kill the process if it exceeds the timeout
+        stdout, stderr = process.communicate()
+        print(f"Process timed out. STDOUT: {stdout}, STDERR: {stderr}")
+        raise TimeoutError(f"thermal_RC.py exceeded the timeout of {timeout} seconds.")
+        
+    except Exception as e:
+        # Handle any other errors
+        print(f"Error occurred: {str(e)}")
+        raise e
+        
+    finally:
+        # Ensure subprocess is terminated if it has not already been killed
+        process.terminate()
+
 
 
 def generate_new_power_dist(cluster, idx, start_x, start_y, len_x, len_y, nodes_x, nodes_y,  power):
@@ -44,7 +93,7 @@ def generate_new_power_dist(cluster, idx, start_x, start_y, len_x, len_y, nodes_
 
     return chiplet
 
-mapping = {f"C{i}": f"Cluster {i}" for i in range(1, 5)}
+mapping = {f"C{i}": f"Cluster {i}" for i in range(1, 6)} # Change manually if cluster count increases
 
 
 def generate_power_config_file(floorplan_data, clusters, iter):
@@ -78,7 +127,7 @@ def generate_power_config_file(floorplan_data, clusters, iter):
             nodes_x, nodes_y = 2, 2
 
         
-        power = clusters[mapping[cluster_key]]['pd'] + router_power_scaling[neighbors] # for Mesh
+        power = clusters[mapping[cluster_key]]['pd'] + router_power_scaling[neighbors]# for Mesh
         
         # For Kite - no change; 
         # For HexaMesh: add+1.4W
@@ -117,9 +166,8 @@ def generate_power_config_file(floorplan_data, clusters, iter):
     with open(f'exp_{iter}/power_seq.csv', 'w') as file:
         writer = csv.writer(file)
         writer.writerows(power_list)
-
-    
-    run_mfit(iter)
+    T_peak = run_mfit(iter)
+    return T_peak
     
 
 

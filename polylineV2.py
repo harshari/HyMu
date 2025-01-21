@@ -58,21 +58,31 @@ network_data = {
 
 # Cluster configurations
 clusters = {
-    ### Original 
+    ### Original for CNN tasks
     # "Cluster 1": {"count": 28, "pd": 8, "area": 8, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
     # "Cluster 2": {"count": 12, "pd": 1, "area": 4, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
     # "Cluster 3": {"count": 18, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
     # "Cluster 4": {"count": 24, "pd": 8, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
-    "Cluster 1": {"count": 64, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
-    "Cluster 2": {"count": 0, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
-    "Cluster 3": {"count": 0, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
-    "Cluster 4": {"count": 0, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
+    # "Cluster 5": {"count": 0, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
+
+    ### For CNN:
+    # "Cluster 1": {"count": 20, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
+    # "Cluster 2": {"count": 10, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
+    # "Cluster 3": {"count": 14, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
+    # "Cluster 4": {"count": 26, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
+    
+    ## For LLM: Adder, Shared, ADC_Less 
+    "Cluster 1": {"count": 24, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # Standard - 80mm2
+    "Cluster 2": {"count": 28, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # Shared_ADC - 80mm2
+    "Cluster 3": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # Adder - 80mm2
+    "Cluster 4": {"count": 18, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
+    "Cluster 5": {"count": 12, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
+
     # "Cluster 4": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # 2x2 chiplets
 
 }
-
 # Grid dimensions
-grid_dims = (16, 16)
+grid_dims = (20, 22)
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -144,7 +154,7 @@ def generate_floorplan_data(cluster_positions, clusters):
     return floorplan_data
 
 # Function to adjust positions and sizes with spacing
-def adjust_chiplets_with_spacing(floorplan_data, spacing=1):
+def adjust_chiplets_with_spacing(floorplan_data, spacing=.25):
     adjusted_floorplan = []
     half_spacing = spacing / 2  # Distribute spacing equally on all sides
 
@@ -297,7 +307,7 @@ def generate_core_ordering_with_grid(adjusted_floorplan_with_spacing, clusters):
 
     return core_ordering, grid
 
-def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=1, title="Chiplet Centers Visualization"):
+def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=.25, title="Chiplet Centers Visualization"):
     plt.figure(figsize=(12, 8))
     plt.title(title)
     
@@ -337,10 +347,12 @@ def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=1, tit
     plt.ylabel("Y-axis (mm)")
     plt.title(f"exp_{i}/chiplet-centers")
     plt.savefig(f"exp_{i}/chiplet-centers.png")
+    plt.close()
+
 
 
 # Visualization function with tick marks and equal axes scaling
-def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=1, title="Chiplet Placement with Tick Marks and Labels"):
+def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=.25, title="Chiplet Placement with Tick Marks and Labels"):
     plt.figure(figsize=(12, 8))
     plt.title(title)
     max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
@@ -353,10 +365,11 @@ def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=1, title="C
 
     # Cluster-specific colors
     cluster_colors = {
-        "C1": "orange",
-        "C2": "green",
-        "C3": "blue",
-        "C4": "red",
+        "C1": "red",
+        "C2": "orange",
+        "C3": "purple",
+        "C4": "blue",
+        "C5": "green"
     }
 
     for chiplet in floorplan_data:
@@ -368,7 +381,7 @@ def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=1, title="C
 
         plt.gca().add_patch(
             plt.Rectangle(
-                (y, x), breadth, length, color=color, alpha=0.8, edgecolor="black", linewidth=1.5
+                (y, x), breadth, length, facecolor=color, alpha=0.8, edgecolor="black", linewidth=1.5
             )
         )
         plt.text(
@@ -388,19 +401,22 @@ def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=1, title="C
     plt.xlabel("X-axis (mm)")
     plt.ylabel("Y-axis (mm)")
     plt.savefig(f"exp_{i}/chiplet-placement.png")
+    plt.close()
+
 
 # Initialize the grid and cluster positions
 grid = np.zeros((grid_dims[0], grid_dims[1]), dtype=int)
 cluster_positions = {}
 
 # Place clusters based on ordering
-ordering = ["Cluster 4", "Cluster 3", "Cluster 2", "Cluster 1"]
+ordering = ["Cluster 4", "Cluster 3", "Cluster 2", "Cluster 1", "Cluster 5"]
 # ordering = ["Cluster 3", "Cluster 1", "Cluster 2", "Cluster 4"]
 #ordering = ["Cluster 1", "Cluster 3", "Cluster 2", "Cluster 4"]
 
 
 permutations = list(permutations(ordering))
-
+exp_number = 0
+peak_temp = 100000 
 i = 0
 for iterate in permutations:
     i += 1
@@ -444,15 +460,18 @@ for iterate in permutations:
         # ### then initialize 2d matrix of links and 1d matrix for core ordering
         # # Visualize chiplet floorplan
 
-        visualize_chiplet_floorplan(i, adjusted_floorplan_with_spacing, clusters, spacing=1, title="Heterogenous Chiplet Placement")
+        visualize_chiplet_floorplan(i, adjusted_floorplan_with_spacing, clusters, spacing=.25, title="Heterogenous Chiplet Placement")
         visualize_chiplet_centers(i, adjusted_floorplan_with_spacing=adjusted_floorplan_with_spacing)
         # average_hop_count = calculate_average_hop_count(cluster_positions)
         # print(f"Average Hop Count: {average_hop_count:.2f}")
 
         # ## Send to MFIT
-        generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
+        T_peak = generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
         # # Calculate average hop count
-        
+        if (T_peak < peak_temp):
+            peak_temp = T_peak
+            exp_number = i
+            print(f"New minimum temp = {(T_peak - 300):.2f} at exp {i}")
         # # Convert to DataFrame for output
         adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
@@ -461,3 +480,4 @@ for iterate in permutations:
 
     else:
         print("Next permutation")
+print(f"Lowest T_peak for {exp_number} at T_peak = {T_peak}")

@@ -1,0 +1,1 @@
+New minimum temp = 59.86 at exp 1
