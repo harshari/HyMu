@@ -1,7 +1,7 @@
 # in mm
 common:
-  x_length: 29.5
-  y_length: 27.5
+  x_length: 26
+  y_length: 27
   z_length: 1.855
   chiplet_x: 1.5
   chiplet_y: 1.5
