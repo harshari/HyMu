@@ -1,14 +1,14 @@
 # in mm
 common:
-  x_length: 29.5
-  y_length: 27.5
-  z_length: 2.055  # Updated to match new total height
+  x_length: 9.5
+  y_length: 9.5
+  z_length: 1.855
   chiplet_x: 1.5
   chiplet_y: 1.5
   chiplet_spacing: 1.5
   n_chiplet_x: 2
   n_chiplet_y: 2
-  bc_top_htc : 14000
+  bc_top_htc : 1400
   bc_bottom_htc : 25
 
 layers:
@@ -17,8 +17,8 @@ layers:
     nodes: 
       uniform: True
       under_chiplet: False
-      x_nodes: 11
-      y_nodes: 11
+      x_nodes: 5
+      y_nodes: 5
     start_point: 
       x: 0.0
       y: 0.0
@@ -27,12 +27,12 @@ layers:
     material: 'substrate'
   
   substrate_2:
-    thickness: 0.6  # Updated thickness
+    thickness: 0.5
     nodes: 
       uniform: True
       under_chiplet: False
-      x_nodes: 11
-      y_nodes: 11
+      x_nodes: 5
+      y_nodes: 5
     start_point: 
       x: 0.0
       y: 0.0
@@ -40,115 +40,88 @@ layers:
     power_src: False
     material: 'substrate'
 
+  # node cordinates are according to start point (x,y) of the layer
   c4: 
     thickness: 0.08
     nodes: 
-      uniform: True
+      uniform: False
       under_chiplet: False
-      x_nodes: 11
-      y_nodes: 11
+      x_nodes: [0.25, 0.875, 1.625, 2.75, 3.875, 4.625, 5.25]
+      y_nodes: [0.25, 0.875, 1.625, 2.75, 3.875, 4.625, 5.25]
     start_point: 
       x: 2.0
       y: 2.0
-      z: 1.10  # Updated
+      z: 1.0
     power_src: False
     material: 'c4'
   
-  glass_interposer:  # New layer
-    thickness: 0.2
-    nodes:
-      uniform: True
-      under_chiplet: True
-      x_nodes: 11
-      y_nodes: 11
+  interposer: 
+    thickness: 0.1
+    nodes: 
+      uniform: False
+      under_chiplet: False
+      x_nodes: [0.25, 0.875, 1.625, 2.75, 3.875, 4.625, 5.25]
+      y_nodes: [0.25, 0.875, 1.625, 2.75, 3.875, 4.625, 5.25]
     start_point: 
-      x: 0.0
-      y: 0.0
+      x: 2.0
+      y: 2.0
+      z: 1.08
+    power_src: False
+    material: 'interposer'
+
+  ubump: 
+    thickness: 0.025
+    nodes:
+      uniform: False
+      under_chiplet: True
+      x_nodes: [0.375, 1.125]
+      y_nodes: [0.375, 1.125]
+    start_point: 
+      x: 2.5
+      y: 2.5
       z: 1.18
     power_src: False
-    material: 'glass'
-
-  embedded_chiplet:  # Renamed from chiplet
-    thickness: 0.1
-    nodes:
-      uniform: True
-      under_chiplet: True
-      x_nodes: 2
-      y_nodes: 2
-    start_point: 
-      x: 2.5
-      y: 2.5
-      z: 1.255
-    power_src: True
-    material: 'chiplet'
-
-  embedded_ubump:  # New layer for micro-bumps under embedded chiplet
-    thickness: 0.025
-    nodes:
-      uniform: True
-      under_chiplet: True
-      x_nodes: 2
-      y_nodes: 2
-    start_point: 
-      x: 2.5
-      y: 2.5
-      z: 1.355
-    power_src: False
     material: 'ubump'
 
-  ubump:  # Upper micro-bumps
-    thickness: 0.025
-    nodes:
-      uniform: True
-      under_chiplet: True
-      x_nodes: 2
-      y_nodes: 2
-    start_point: 
-      x: 2.5
-      y: 2.5
-      z: 1.38
-    power_src: False
-    material: 'ubump'
-
-  chiplet:  # Upper chiplet
+  chiplet:
     thickness: 0.1
     nodes:
-      uniform: True
+      uniform: False
       under_chiplet: True
-      x_nodes: 2
-      y_nodes: 2
+      x_nodes: [0.375, 1.125]
+      y_nodes: [0.375, 1.125]
     start_point: 
       x: 2.5
       y: 2.5
-      z: 1.405
+      z: 1.205
     power_src: True
     material: 'chiplet'
 
   tim: 
     thickness: 0.05
     nodes: 
-      uniform: True
+      uniform: False
       under_chiplet: True
-      x_nodes: 2
-      y_nodes: 2
+      x_nodes: [0.375, 1.125]
+      y_nodes: [0.375, 1.125]
     start_point: 
       x: 2.5
       y: 2.5
-      z: 1.505
+      z: 1.305
     power_src: False
     material: 'tim'
 
   lid1:
     thickness: 0.25
     nodes: 
-      uniform: True
+      uniform: False
       under_chiplet: False
-      x_nodes: 11
-      y_nodes: 11
+      x_nodes: [0.625, 1.875, 2.875, 3.625, 4.75, 5.875, 6.625, 7.625, 8.875]
+      y_nodes: [0.625, 1.875, 2.875, 3.625, 4.75, 5.875, 6.625, 7.625, 8.875]
     start_point: 
       x: 0.0
       y: 0.0
-      z: 1.555
+      z: 1.355
     power_src: False
     material: 'lid'
 
@@ -157,11 +130,11 @@ layers:
     nodes: 
       uniform: True
       under_chiplet: False
-      x_nodes: 11
-      y_nodes: 11
+      x_nodes: 7
+      y_nodes: 7
     start_point: 
       x: 0.0
       y: 0.0
-      z: 1.805
+      z: 1.605
     power_src: False
     material: 'lid'
