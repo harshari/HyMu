@@ -285,7 +285,7 @@ class Chiplet_package:
 
     def write_temperature_to_file(self, ts):
         self.temperature_all_save = np.array(self.temperature_all_save) + 300.0
-
+        T_peak = np.max(self.temperature_all_save)
         # save the temperature to a file
         file_name = f'{self.args.output_dir}/output/temperature_all_{ts}.csv'
         np.savetxt(file_name, self.temperature_all_save, delimiter=',')
@@ -313,6 +313,7 @@ class Chiplet_package:
             layer_end = num_nodes
             if layer.is_power_src():
                 layer.map_temperature_to_blk(temperature_all_map[layer_start:layer_end], utils=self.common_utils, ts=ts)
+        return T_peak
 
     def convert_to_np_array(self, pointer):
         def dereference_pointer(pointer, length):
@@ -392,5 +393,6 @@ class Chiplet_package:
         
 
         self.convert_to_np_array(c_temperature_all)
-        self.write_temperature_to_file(dt)
+        T_peak = self.write_temperature_to_file(dt)
+        return T_peak
         

@@ -560,7 +560,9 @@ class Layer_chiplet:
         fig, ax = plt.subplots()
 
         # Set constant normalization range for the color scale
-        norm = plt.Normalize(50, 95)
+        # norm = plt.Normalize(50, 95)
+        norm = plt.Normalize(temperature_all_layer.min()-1, temperature_all_layer.max()+1)
+
         cmap = plt.cm.hot_r
 
         if self.is_layer_under_chiplet() and not self.args.is_homogeneous:

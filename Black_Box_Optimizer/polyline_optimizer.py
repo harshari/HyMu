@@ -16,7 +16,6 @@ clusters = {
     "Cluster 4": {"count": 18, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
     "Cluster 5": {"count": 8, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
 
-
 }
 # Grid dimensions
 grid_dims = (20, 22)

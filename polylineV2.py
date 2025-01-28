@@ -20,12 +20,6 @@ network_data = {
         "Compute": [118.01, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 57.8, 115.61, 6.42, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 57.8, 115.61, 6.42, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 115.61, 57.8, 115.61, 6.42, 115.61, 115.61],
         "Sensitivity": [1.15, 4.50, 4.50, 4.50, 4.50, 4.50, 4.50, 9.00, 18.00, 1.00, 18.00, 18.00, 18.00, 18.00, 18.00, 18.00, 36.00, 72.00, 4.00, 72.00, 72.00, 72.00, 72.00, 72.00, 72.00, 72.00, 72.00, 72.00, 72.00, 144.00, 288.00, 16.00, 288.00, 288.00]
     },
-    "ResNet50": {
-        "Storage": [9.19, 4.0, 36.0, 16.0, 16.0, 16.0, 36.0, 16.0, 16.0, 36.0, 16.0, 32.0, 144.0, 64.0, 128.0, 64.0, 144.0, 64.0, 64.0, 144.0, 64.0, 64.0, 144.0, 64.0, 128.0, 576.0, 256.0, 512.0, 256.0, 576.0, 256.0, 256.0, 576.0, 256.0, 256.0, 576.0, 256.0, 256.0, 576.0, 256.0, 256.0, 576.0, 256.0, 512.0, 2304.0, 1024.0, 2048.0, 1024.0, 2304.0, 1024.0],
-        "Activations": [784.0, 196.0, 196.0, 784.0, 784.0, 196.0, 196.0, 784.0, 196.0, 196.0, 784.0, 392.0, 98.0, 392.0, 392.0, 98.0, 98.0, 392.0, 98.0, 98.0, 392.0, 98.0, 98.0, 392.0, 196.0, 49.0, 196.0, 196.0, 49.0, 49.0, 196.0, 49.0, 49.0, 196.0, 49.0, 49.0, 196.0, 49.0, 49.0, 196.0, 49.0, 49.0, 196.0, 98.0, 24.5, 98.0, 98.0, 24.5, 24.5, 98.0],
-        "Compute": [118.01, 12.85, 115.61, 51.38, 51.38, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 102.76, 115.61, 51.38, 102.76, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 102.76, 115.61, 51.38, 102.76, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 51.38, 115.61, 51.38, 102.76, 115.61, 51.38, 102.76, 51.38, 115.61, 51.38],
-        #"Sensitivity": [0.17, 0.14, 1.35, 0.15, 10.34, 0.17, 9.15, 0.14, 19.93, 0.15, 15.68, 0.12, 16.16, 0.10, 26.12, 0.14]
-    },
     "VGG16": {
         "Storage": [1.75, 36.06, 72.12, 144.12, 288.25, 576.25, 576.25, 1152.50, 2304.50, 2304.50, 2304.50, 2304.50, 2304.50, 100356.00, 16388.00, 4000.98],
         "Activations": [3136.00, 3136.00, 1568.00, 1568.00, 784.00, 784.00, 784.00, 392.00, 392.00, 392.00, 98.00, 98.00, 98.00, 4.00, 4.00, 0.98],
@@ -38,12 +32,6 @@ network_data = {
         "Compute": [86.70, 1849.69, 924.84, 1849.69, 924.84, 1849.69, 1849.69, 1849.69, 924.84, 1849.69, 1849.69, 1849.69, 462.42, 462.42, 462.42, 462.42, 102.76, 16.78, 4.10],
         "Sensitivity": [0.09, 0.05, 0.62, 0.07, 3.74, 0.07, 5.47, 0.07, 13.70, 0.09, 15.69, 0.08, 12.66, 0.07, 10.98, 0.06, 20.71, 0.08, 15.71]
     },
-    "DenseNet121": {
-        "Storage": [9.19, 8.00, 36.00, 12.00, 36.00, 16.00, 36.00, 20.00, 36.00, 24.00, 36.00, 28.00, 36.00, 32.00, 16.00, 36.00, 20.00, 36.00, 24.00, 36.00, 28.00, 36.00, 32.00, 36.00, 36.00, 36.00, 40.00, 36.00, 44.00, 36.00, 48.00, 36.00, 52.00, 36.00, 56.00, 36.00, 60.00, 36.00, 128.00, 32.00, 36.00, 36.00, 36.00, 40.00, 36.00, 44.00, 36.00, 48.00, 36.00, 52.00, 36.00, 56.00, 36.00, 60.00, 36.00, 64.00, 36.00, 68.00, 36.00, 72.00, 36.00, 76.00, 36.00, 80.00],
-        "Activations": [784.00, 392.00, 98.00, 392.00, 98.00, 392.00, 98.00, 392.00, 98.00, 392.00, 98.00, 392.00, 98.00, 392.00, 98.00, 24.50, 98.00, 24.50, 98.00, 24.50, 98.00, 24.50, 98.00, 24.50],
-        "Compute": [118.01, 25.69, 115.61, 38.54, 115.61, 51.38, 115.61, 64.23, 115.61, 77.07, 115.61, 89.92, 115.61, 102.76, 12.85, 28.90],
-        #"Sensitivity": [0.10, 0.12, 0.09, 0.11, 0.13, 0.15, 0.17, 0.19, 0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35]
-    },
     "MobileNetV2": {
         "Storage": [0.84, 0.28, 0.50, 1.50, 0.84, 2.25, 3.38, 1.27, 3.38, 3.38, 1.27, 4.50, 6.00, 1.69, 6.00, 6.00, 1.69, 6.00, 6.00, 1.69, 12.00, 24.00, 3.38, 24.00, 24.00, 3.38, 24.00, 24.00, 3.38, 24.00, 24.00, 3.38, 36.00, 54.00, 5.06, 54.00, 54.00, 5.06, 54.00, 54.00, 5.06, 90.00, 150.00, 8.44, 150.00, 150.00, 8.44, 150.00, 150.00, 8.44, 300.00, 400.00],
         "Activations": [392.00, 392.00, 196.00, 1176.00, 294.00, 73.50, 441.00, 441.00, 73.50, 441.00, 110.25, 24.50, 147.00, 147.00, 24.50, 147.00, 147.00, 24.50, 147.00, 36.75, 12.25, 73.50, 73.50, 12.25, 73.50, 73.50, 12.25, 73.50, 73.50, 12.25, 73.50, 73.50, 18.38, 110.25, 110.25, 18.38, 110.25, 110.25, 18.38, 110.25, 27.56, 7.66, 45.94, 45.94, 7.66, 45.94, 45.94, 7.66, 45.94, 45.94, 15.31, 61.25],
@@ -52,37 +40,16 @@ network_data = {
     }
 }
 
-
-# chiplet configurations
-
-
 # Cluster configurations
 clusters = {
-    ### Original for CNN tasks
-    # "Cluster 1": {"count": 28, "pd": 8, "area": 8, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
-    # "Cluster 2": {"count": 12, "pd": 1, "area": 4, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
-    # "Cluster 3": {"count": 18, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
-    # "Cluster 4": {"count": 24, "pd": 8, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
-    # "Cluster 5": {"count": 0, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
-
-    ### For CNN:
-    # "Cluster 1": {"count": 20, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # 2x4 or 4x2 chiplets
-    # "Cluster 2": {"count": 10, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # 2x2 chiplets
-    # "Cluster 3": {"count": 14, "pd": 4, "area": 4, "memory": 4800, "tops": 70e12, "energy_per_mac": .11e-12},  # 2x2 chiplets
-    # "Cluster 4": {"count": 26, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # 2x2 chiplets
-    
-    ## For LLM: Adder, Shared, ADC_Less 
-    "Cluster 1": {"count": 24, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # Standard - 80mm2
-    "Cluster 2": {"count": 28, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # Shared_ADC - 80mm2
+    "Cluster 1": {"count": 0, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # Standard - 80mm2
+    "Cluster 2": {"count": 12, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # Shared_ADC - 80mm2
     "Cluster 3": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # Adder - 80mm2
-    "Cluster 4": {"count": 18, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
+    "Cluster 4": {"count": 12, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
     "Cluster 5": {"count": 12, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
-
-    # "Cluster 4": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # 2x2 chiplets
-
 }
 # Grid dimensions
-grid_dims = (20, 22)
+grid_dims = (12, 16)
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -96,6 +63,10 @@ def is_valid_position(grid, x, y, chiplet_size):
     return True
 
 def find_max_distance_position(grid, chiplet_size, current_positions=None):
+    '''
+    Use: Finds a position farthest from the grid center for chiplet placement.
+    For the heuristic placement to boundary
+    '''
     rows, cols = grid.shape
     center_x, center_y = rows // 2, cols // 2
     max_distance = -1
@@ -182,49 +153,6 @@ def adjust_chiplets_with_spacing(floorplan_data, spacing=.25):
         })
     return adjusted_floorplan
 
-import pandas as pd
-
-def calculate_neighbors(floorplan_data):
-    """
-    Appends the number of neighbors for each chiplet to the floorplan data.
-    Returns:
-        pd.DataFrame: Updated DataFrame with an additional column 'num_neighbors'.
-    """
-    def is_neighbor(chip1, chip2):
-        # Check if chip1 and chip2 are adjacent
-        adjacent_x = (chip1['Lower_Left_Corner'][0] + chip1['Length'] == chip2['Lower_Left_Corner'][0]) or (chip2['Lower_Left_Corner'][0] + chip2['Length'] == chip1['Lower_Left_Corner'][0])
-        overlapping_y = not (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] <= chip2['Lower_Left_Corner'][1] or chip2['Lower_Left_Corner'][1] + chip2['Breadth'] <= chip1['Lower_Left_Corner'][1])
-        
-        adjacent_y = (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] == chip2['Lower_Left_Corner'][1]) or (chip2['Lower_Left_Corner'][1] + chip2['Breadth'] == chip1['Lower_Left_Corner'][1])
-        overlapping_x = not (chip1['Lower_Left_Corner'][0] + chip1['Length'] <= chip2['Lower_Left_Corner'][0] or chip2['Lower_Left_Corner'][0] + chip2['Length'] <= chip1['Lower_Left_Corner'][0])
-        
-        return (adjacent_x and overlapping_y) or (adjacent_y and overlapping_x)
-    
-    for i, chip1 in enumerate(floorplan_data):
-        count = 0
-        for j, chip2 in enumerate(floorplan_data):
-            if i != j and is_neighbor(chip1, chip2):
-                count += 1
-        floorplan_data[i]['num_neighbors'] = count
-        
-    return floorplan_data
-
-
-# Function to calculate average hop count using Manhattan distance
-def calculate_average_hop_count(cluster_positions):
-    total_distance = 0
-    total_pairs = 0
-
-    for cluster_a, positions_a in cluster_positions.items():
-        for cluster_b, positions_b in cluster_positions.items():
-            if cluster_a != cluster_b:  # Calculate only between different clusters
-                for pos_a in positions_a:
-                    for pos_b in positions_b:
-                        total_distance += cityblock(pos_a, pos_b)
-                        total_pairs += 1
-
-    return total_distance / total_pairs if total_pairs > 0 else None
-
 
 
 
@@ -249,6 +177,32 @@ def detect_grid_dimensions(core_ordering, clusters):
     cols = (total_routers + rows - 1) // rows  # Ensure all chiplets fit in
 
     return rows, cols
+def calculate_neighbors(floorplan_data):
+    """
+    Appends the number of neighbors for each chiplet to the floorplan data.
+    Returns:
+        pd.DataFrame: Updated DataFrame with an additional column 'num_neighbors'.
+    Usage:         updated_floorplan = calculate_neighbors(floorplan_data)
+
+    """
+    def is_neighbor(chip1, chip2):
+        # Check if chip1 and chip2 are adjacent
+        adjacent_x = (chip1['Lower_Left_Corner'][0] + chip1['Length'] == chip2['Lower_Left_Corner'][0]) or (chip2['Lower_Left_Corner'][0] + chip2['Length'] == chip1['Lower_Left_Corner'][0])
+        overlapping_y = not (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] <= chip2['Lower_Left_Corner'][1] or chip2['Lower_Left_Corner'][1] + chip2['Breadth'] <= chip1['Lower_Left_Corner'][1])
+        
+        adjacent_y = (chip1['Lower_Left_Corner'][1] + chip1['Breadth'] == chip2['Lower_Left_Corner'][1]) or (chip2['Lower_Left_Corner'][1] + chip2['Breadth'] == chip1['Lower_Left_Corner'][1])
+        overlapping_x = not (chip1['Lower_Left_Corner'][0] + chip1['Length'] <= chip2['Lower_Left_Corner'][0] or chip2['Lower_Left_Corner'][0] + chip2['Length'] <= chip1['Lower_Left_Corner'][0])
+        
+        return (adjacent_x and overlapping_y) or (adjacent_y and overlapping_x)
+    
+    for i, chip1 in enumerate(floorplan_data):
+        count = 0
+        for j, chip2 in enumerate(floorplan_data):
+            if i != j and is_neighbor(chip1, chip2):
+                count += 1
+        floorplan_data[i]['num_neighbors'] = count
+        
+    return floorplan_data
 
 def generate_core_ordering_with_grid(adjusted_floorplan_with_spacing, clusters):
     """
@@ -462,7 +416,6 @@ for iterate in permutations:
 
         visualize_chiplet_floorplan(i, adjusted_floorplan_with_spacing, clusters, spacing=.25, title="Heterogenous Chiplet Placement")
         visualize_chiplet_centers(i, adjusted_floorplan_with_spacing=adjusted_floorplan_with_spacing)
-        # average_hop_count = calculate_average_hop_count(cluster_positions)
         # print(f"Average Hop Count: {average_hop_count:.2f}")
 
         # ## Send to MFIT

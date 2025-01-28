@@ -563,8 +563,8 @@ class Layer_chiplet:
         norm = plt.Normalize(temperature_all_layer.min()-1, temperature_all_layer.max()+1)
 
         # norm = plt.Normalize(50, 95)
-        # cmap = plt.cm.hot_r
-        cmap = plt.cm.turbo  # Blue → Green → Yellow → Red
+        cmap = plt.cm.hot_r
+        # cmap = plt.cm.turbo  # Blue → Green → Yellow → Red
 
 
         if self.is_layer_under_chiplet() and not self.args.is_homogeneous:
