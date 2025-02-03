@@ -42,14 +42,14 @@ network_data = {
 
 # Cluster configurations
 clusters = {
-    "Cluster 1": {"count": 0, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # Standard - 80mm2
-    "Cluster 2": {"count": 12, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # Shared_ADC - 80mm2
-    "Cluster 3": {"count": 0, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # Adder - 80mm2
-    "Cluster 4": {"count": 12, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
-    "Cluster 5": {"count": 12, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
+    "Cluster 1": {"count": 4, "pd": 8, "area": 4, "memory": 1196, "tops": 30e12, "energy_per_mac": .87e-12},  # Standard - 80mm2
+    "Cluster 2": {"count": 10, "pd": 8, "area": 8, "memory": 1080, "tops": 27e12, "energy_per_mac": .3e-12},  # Shared_ADC - 80mm2
+    "Cluster 3": {"count": 19, "pd": 2, "area": 4, "memory": 108, "tops": 11e12, "energy_per_mac": .18e-12},  # Adder - 80mm2
+    "Cluster 4": {"count": 13, "pd": 8, "area": 4, "memory": 2400, "tops": 35e12, "energy_per_mac": .22e-12},  # Accumulator
+    "Cluster 5": {"count": 8, "pd": 1, "area": 4, "memory": 300, "tops": 3.8e12, "energy_per_mac": .27e-12},  # ADC_Less - 96
 }
 # Grid dimensions
-grid_dims = (12, 16)
+grid_dims = (16, 16)
 
 # Function to validate chiplet placement
 def is_valid_position(grid, x, y, chiplet_size):
@@ -306,11 +306,13 @@ def visualize_chiplet_centers(i, adjusted_floorplan_with_spacing, spacing=.25, t
 
 
 # Visualization function with tick marks and equal axes scaling
-def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=.25, title="Chiplet Placement with Tick Marks and Labels"):
+def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=0.25, title="Chiplet Placement with Tick Marks and Labels"):
     plt.figure(figsize=(12, 8))
-    plt.title(title)
+    #plt.title(title, fontsize=14)
+    
     max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
     max_y = max(chiplet["Lower_Left_Corner"][0] + chiplet["Length"] for chiplet in floorplan_data)
+    
     plt.xlim(0, max_x + spacing)
     plt.ylim(0, max_y + spacing)
 
@@ -331,31 +333,78 @@ def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=.25, title=
         length = chiplet["Length"]
         breadth = chiplet["Breadth"]
         cluster_key = chiplet["Chiplet"].split("-")[0]
-        color = cluster_colors[cluster_key]
+        color = cluster_colors.get(cluster_key, "gray")  # Default to gray if no match
 
         plt.gca().add_patch(
             plt.Rectangle(
                 (y, x), breadth, length, facecolor=color, alpha=0.8, edgecolor="black", linewidth=1.5
             )
         )
-        plt.text(
-            y + breadth / 2,
-            x + length / 2,
-            chiplet["Chiplet"],
-            color="black",
-            fontsize=8,
-            ha="center",
-            va="center",
-        )
 
-    # Add tick marks at every unit
-    plt.xticks(ticks=np.arange(0, max_x + 2, 1))
-    plt.yticks(ticks=np.arange(0, max_y + 2, 1))
-    plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
-    plt.xlabel("X-axis (mm)")
-    plt.ylabel("Y-axis (mm)")
+    # Show only ticks at multiples of 10
+    plt.xticks(ticks=np.arange(0, max_x + 2, 5), fontsize=18)
+    plt.yticks(ticks=np.arange(0, max_y + 2, 5), fontsize=18)
+    # plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
+
+    # Labels
+    plt.xlabel("X dimension (mm)", fontsize=18)
+    plt.ylabel("Y dimension (mm)", fontsize=18)
+
     plt.savefig(f"exp_{i}/chiplet-placement.png")
     plt.close()
+
+
+
+# def visualize_chiplet_floorplan(i, floorplan_data, clusters, spacing=.25, title="Chiplet Placement with Tick Marks and Labels"):
+#     plt.figure(figsize=(12, 8))
+#     plt.title(title)
+#     max_x = max(chiplet["Lower_Left_Corner"][1] + chiplet["Breadth"] for chiplet in floorplan_data)
+#     max_y = max(chiplet["Lower_Left_Corner"][0] + chiplet["Length"] for chiplet in floorplan_data)
+#     plt.xlim(0, max_x + spacing)
+#     plt.ylim(0, max_y + spacing)
+
+#     # Ensure equal scaling for axes
+#     plt.gca().set_aspect('equal', adjustable='box')
+
+#     # Cluster-specific colors
+#     cluster_colors = {
+#         "C1": "red",
+#         "C2": "orange",
+#         "C3": "purple",
+#         "C4": "blue",
+#         "C5": "green"
+#     }
+
+#     for chiplet in floorplan_data:
+#         x, y = chiplet["Lower_Left_Corner"]
+#         length = chiplet["Length"]
+#         breadth = chiplet["Breadth"]
+#         cluster_key = chiplet["Chiplet"].split("-")[0]
+#         color = cluster_colors[cluster_key]
+
+#         plt.gca().add_patch(
+#             plt.Rectangle(
+#                 (y, x), breadth, length, facecolor=color, alpha=0.8, edgecolor="black", linewidth=1.5
+#             )
+#         )
+#         plt.text(
+#             y + breadth / 2,
+#             x + length / 2,
+#             chiplet["Chiplet"],
+#             color="black",
+#             fontsize=8,
+#             ha="center",
+#             va="center",
+#         )
+
+#     # Add tick marks at every unit
+#     plt.xticks(ticks=np.arange(0, max_x + 2, 1))
+#     plt.yticks(ticks=np.arange(0, max_y + 2, 1))
+#     plt.grid(visible=True, which="both", color="gray", linestyle="--", linewidth=0.5)
+#     plt.xlabel("X-axis (mm)")
+#     plt.ylabel("Y-axis (mm)")
+#     plt.savefig(f"exp_{i}/chiplet-placement.png")
+#     plt.close()
 
 
 # Initialize the grid and cluster positions
@@ -419,17 +468,17 @@ for iterate in permutations:
         # print(f"Average Hop Count: {average_hop_count:.2f}")
 
         # ## Send to MFIT
-        T_peak = generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
-        # # Calculate average hop count
-        if (T_peak < peak_temp):
-            peak_temp = T_peak
-            exp_number = i
-            print(f"New minimum temp = {(T_peak - 300):.2f} at exp {i}")
-        # # Convert to DataFrame for output
-        adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
+        # T_peak = generate_power_config_file(adjusted_floorplan_with_spacing, clusters, i)
+        # # # Calculate average hop count
+        # if (T_peak < peak_temp):
+        #     peak_temp = T_peak
+        #     exp_number = i
+        #     print(f"New minimum temp = {(T_peak - 300):.2f} at exp {i}")
+        # # # Convert to DataFrame for output
+        # adjusted_floorplan_spacing_df = pd.DataFrame(adjusted_floorplan_with_spacing)
 
-        # # Uncomment the following line to save the floorplan data to a CSV file
-        adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
+        # # # Uncomment the following line to save the floorplan data to a CSV file
+        # adjusted_floorplan_spacing_df.to_csv(f"exp_{i}/chiplet-position_flp.csv", index=False)
 
     else:
         print("Next permutation")

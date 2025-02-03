@@ -5,6 +5,7 @@ import subprocess
 import re
 
 router_power_scaling = {
+    1: 0,
     2: 1.4,
     3: 2.2,
     4: 3.4,
