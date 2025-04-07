@@ -298,7 +298,7 @@ class Chiplet_package:
                 index_heatmap = 1
             else:
                 index_heatmap = int(self.args.time_heatmap/self.args.time_step)
-            plot_temperature = temperature_all_map[:, index_heatmap] - 300.0
+            plot_temperature = temperature_all_map[:, index_heatmap] - 273.15
             num_nodes = 0
             for layer in self.layers:
                 layer_start = num_nodes

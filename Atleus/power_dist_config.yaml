@@ -1,0 +1,87 @@
+chiplet_layer_1:
+  systolic_chiplet:
+    layout_blocks:
+      chiplet:
+        length_x: 10
+        length_y: 10
+        max_power: 34.08
+        start_point_x: 0
+        start_point_y: 0
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 2.5
+    start_chiplet_y: 2.5
+
+  hbm_chiplet:
+    layout_blocks:
+      chiplet:
+        length_x: 10
+        length_y: 10
+        max_power: 10
+        start_point_x: 0
+        start_point_y: 0
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 13.5
+    start_chiplet_y: 2.5
+
+chiplet_layer_2: &reram_stack
+  reram_chiplet:
+    layout_blocks:
+      chiplet:
+        length_x: 10
+        length_y: 10
+        max_power: 88.32
+        start_point_x: 0
+        start_point_y: 0
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 2.5
+    start_chiplet_y: 2.5
+
+  hbm_chiplet:
+    layout_blocks:
+      chiplet:
+        length_x: 10
+        length_y: 10
+        max_power: 10
+        start_point_x: 0
+        start_point_y: 0
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 13.5
+    start_chiplet_y: 2.5
+
+chiplet_layer_3: *reram_stack
+chiplet_layer_4: *reram_stack
+  
+
+tim: &id001
+  reram_tim:
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 2.5
+    start_chiplet_y: 2.5
+
+  hbm_tim:
+    length_chiplet_x: 10
+    length_chiplet_y: 10
+    nodes_x: 4
+    nodes_y: 4
+    start_chiplet_x: 13.5
+    start_chiplet_y: 2.5
+
+ubump_1: *id001
+ubump_2: *id001
+ubump_3: *id001
+ubump_4: *id001

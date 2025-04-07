@@ -1,0 +1,224 @@
+# in mm
+common:
+  x_length: 26
+  y_length: 15
+  z_length: 2.23
+  chiplet_x: 1.5
+  chiplet_y: 1.5
+  chiplet_spacing: 1.5
+  n_chiplet_x: 2
+  n_chiplet_y: 2
+  bc_top_htc : 14000
+  bc_bottom_htc : 25
+
+layers:
+  substrate_1:
+    thickness: 0.5
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    power_src: False
+    material: 'substrate'
+  
+  substrate_2:
+    thickness: 0.5
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 0.0
+      y: 0.0
+      z: 0.5
+    power_src: False
+    material: 'substrate'
+
+  # node cordinates are according to start point (x,y) of the layer
+  c4: 
+    thickness: 0.08
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 2.0
+      y: 2.0
+      z: 1.0
+    power_src: False
+    material: 'c4'
+  
+  interposer: 
+    thickness: 0.1
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 2.0
+      y: 2.0
+      z: 1.08
+    power_src: False
+    material: 'interposer'
+
+  ubump_1: 
+    thickness: 0.025
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.18
+    power_src: False
+    material: 'ubump'
+
+  chiplet_layer_1:
+    thickness: 0.1
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.205
+    power_src: True
+    material: 'chiplet'
+
+  ubump_2: 
+    thickness: 0.025
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.305
+    power_src: False
+    material: 'ubump'
+
+  chiplet_layer_2:
+    thickness: 0.1
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.33
+    power_src: True
+    material: 'chiplet'
+
+  ubump_3: 
+    thickness: 0.025
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.43
+    power_src: False
+    material: 'ubump'
+
+  chiplet_layer_3:
+    thickness: 0.1
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.455
+    power_src: True
+    material: 'chiplet'
+
+  ubump_4: 
+    thickness: 0.025
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.555
+    power_src: False
+    material: 'ubump'
+
+  chiplet_layer_4:
+    thickness: 0.1
+    nodes:
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.58
+    power_src: True
+    material: 'chiplet'
+
+  tim: 
+    thickness: 0.05
+    nodes: 
+      uniform: True
+      under_chiplet: True
+      x_nodes: 2
+      y_nodes: 2
+    start_point: 
+      x: 2.5
+      y: 2.5
+      z: 1.68
+    power_src: False
+    material: 'tim'
+
+  lid1:
+    thickness: 0.25
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 0.0
+      y: 0.0
+      z: 1.73
+    power_src: False
+    material: 'lid'
+
+  lid2:
+    thickness: 0.25
+    nodes: 
+      uniform: True
+      under_chiplet: False
+      x_nodes: 11
+      y_nodes: 11
+    start_point: 
+      x: 0.0
+      y: 0.0
+      z: 1.98
+    power_src: False
+    material: 'lid'

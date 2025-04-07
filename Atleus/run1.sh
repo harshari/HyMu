@@ -1,0 +1,1 @@
+python MFIT/thermal_RC.py --power_config_file ./Atleus/power_dist_config.yaml --power_seq_file ./Atleus/power_seq.csv --material_prop_file ./Atleus/material_prop.yml --geometry_file ./Atleus/chiplet_geometry_atleus.yml --output_dir ./Atleus/output
